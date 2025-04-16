@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KategoriPrestasiResource\Pages;
-use App\Filament\Resources\KategoriPrestasiResource\RelationManagers;
-use App\Models\KategoriPrestasi;
+use App\Filament\Resources\DelegasiResource\Pages;
+use App\Filament\Resources\DelegasiResource\RelationManagers;
+use App\Models\Delegasi;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
@@ -12,26 +12,27 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class KategoriPrestasiResource extends Resource
+class DelegasiResource extends Resource
 {
-    protected static ?string $model = KategoriPrestasi::class;
+    protected static ?string $model = Delegasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Kategori Prestasi';
+    protected static ?string $navigationLabel = 'Delegasi';
 
-    protected static ?string $slug = 'kategori-prestasi';
+    protected static ?string $slug = 'Delegasi';
     
-    protected static ?string $label = 'Kategori Prestasi';
-    
+    protected static ?string $label = 'Delegasi';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('kategori')
+                TextInput::make('delegasi')
                 ->required()
             ]);
     }
@@ -40,7 +41,7 @@ class KategoriPrestasiResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kategori')
+                TextColumn::make('delegasi')
                 ->copyable()
                 ->copyMessage('Copy to Clipboard')
                 ->searchable()
@@ -51,7 +52,7 @@ class KategoriPrestasiResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -70,9 +71,9 @@ class KategoriPrestasiResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListKategoriPrestasis::route('/'),
-            'create' => Pages\CreateKategoriPrestasi::route('/create'),
-            'edit' => Pages\EditKategoriPrestasi::route('/{record}/edit'),
+            'index' => Pages\ListDelegasis::route('/'),
+            'create' => Pages\CreateDelegasi::route('/create'),
+            'edit' => Pages\EditDelegasi::route('/{record}/edit'),
         ];
     }
 }

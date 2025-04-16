@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KategoriPrestasiResource\Pages;
-use App\Filament\Resources\KategoriPrestasiResource\RelationManagers;
-use App\Models\KategoriPrestasi;
+use App\Filament\Resources\TingkatPrestasiResource\Pages;
+use App\Filament\Resources\TingkatPrestasiResource\RelationManagers;
+use App\Models\TingkatPrestasi;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
@@ -15,23 +15,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class KategoriPrestasiResource extends Resource
+class TingkatPrestasiResource extends Resource
 {
-    protected static ?string $model = KategoriPrestasi::class;
+    protected static ?string $model = TingkatPrestasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Kategori Prestasi';
+    protected static ?string $navigationLabel = 'Tingkat Prestasi';
 
-    protected static ?string $slug = 'kategori-prestasi';
+    protected static ?string $slug = 'tingkat-prestasi';
     
-    protected static ?string $label = 'Kategori Prestasi';
+    protected static ?string $label = 'Tingkat Prestasi';
     
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('kategori')
+                TextInput::make('tingkat')
                 ->required()
             ]);
     }
@@ -40,7 +40,7 @@ class KategoriPrestasiResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kategori')
+                TextColumn::make('tingkat')
                 ->copyable()
                 ->copyMessage('Copy to Clipboard')
                 ->searchable()
@@ -70,9 +70,9 @@ class KategoriPrestasiResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListKategoriPrestasis::route('/'),
-            'create' => Pages\CreateKategoriPrestasi::route('/create'),
-            'edit' => Pages\EditKategoriPrestasi::route('/{record}/edit'),
+            'index' => Pages\ListTingkatPrestasis::route('/'),
+            'create' => Pages\CreateTingkatPrestasi::route('/create'),
+            'edit' => Pages\EditTingkatPrestasi::route('/{record}/edit'),
         ];
     }
 }
