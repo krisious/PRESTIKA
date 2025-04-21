@@ -20,13 +20,15 @@ class PeringkatPrestasiResource extends Resource
     protected static ?string $model = PeringkatPrestasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Aset';
     
     protected static ?string $navigationLabel = 'Peringkat Prestasi';
 
     protected static ?string $slug = 'peringkat-prestasi';
     
     protected static ?string $label = 'peringkat Prestasi';
-    
+
     public static function form(Form $form): Form
     {
         return $form

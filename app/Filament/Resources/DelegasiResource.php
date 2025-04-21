@@ -22,6 +22,8 @@ class DelegasiResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Aset';
+
     protected static ?string $navigationLabel = 'Delegasi';
 
     protected static ?string $slug = 'Delegasi';

@@ -21,12 +21,14 @@ class KategoriPrestasiResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Aset';
+
     protected static ?string $navigationLabel = 'Kategori Prestasi';
 
     protected static ?string $slug = 'kategori-prestasi';
     
     protected static ?string $label = 'Kategori Prestasi';
-    
+
     public static function form(Form $form): Form
     {
         return $form

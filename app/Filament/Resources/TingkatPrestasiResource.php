@@ -21,12 +21,14 @@ class TingkatPrestasiResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Aset';
+
     protected static ?string $navigationLabel = 'Tingkat Prestasi';
 
     protected static ?string $slug = 'tingkat-prestasi';
     
     protected static ?string $label = 'Tingkat Prestasi';
-    
+
     public static function form(Form $form): Form
     {
         return $form
