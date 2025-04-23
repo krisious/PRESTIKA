@@ -13,7 +13,7 @@ class CreateGuru extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $adminRoleId = Role::where('name', 'Admin')->value('id');
-        $this->record->roles()->sync([$adminRoleId]);
+        $guruRoleId = Role::where('name', 'Guru')->value('id');
+        $this->record->roles()->sync([$guruRoleId]);
     }
 }

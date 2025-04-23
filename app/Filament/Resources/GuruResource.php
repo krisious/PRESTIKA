@@ -25,6 +25,12 @@ class GuruResource extends Resource
 
     protected static ?string $navigationGroup = 'Pengguna';
 
+    protected static ?string $navigationLabel = 'Guru';
+
+    protected static ?string $slug = 'guru';
+
+    protected static ?string $label = 'Guru';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -52,11 +58,15 @@ class GuruResource extends Resource
                     ->options([
                         'asn' => 'ASN',
                         'non asn' => 'Non ASN',
-                    ]),
+                    ])
+                    ->reactive()
+                    ->afterStateUpdated(fn (callable $set, $state) => $set('nip', null)),
                 TextInput::make('nip')
-                    ->required()
                     ->label('NIP')
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->required(fn (callable $get) => $get('status_pegawai') === 'asn')
+                    ->disabled(fn (callable $get) => $get('status_pegawai') === 'non asn')
+                    ->reactive(),
                 Select::make('jenis_kelamin')
                     ->required()
                     ->label('Jenis Kelamin')

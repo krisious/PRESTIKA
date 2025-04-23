@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -50,7 +51,7 @@ class User extends Authenticatable
 
     public function guru()
     {
-    return $this->hasOne(Guru::class, 'id_user', 'id');
+        return $this->hasOne(Guru::class, 'id_user', 'id');
     }
 
     public function siswa()
