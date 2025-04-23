@@ -35,6 +35,7 @@ class PeringkatPrestasiResource extends Resource
             ->schema([
                 TextInput::make('peringkat')
                 ->required()
+                ->label('Peringkat')
             ]);
     }
 
@@ -43,6 +44,7 @@ class PeringkatPrestasiResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('peringkat')
+                ->label('Peringkat')
                 ->copyable()
                 ->copyMessage('Copy to Clipboard')
                 ->searchable()

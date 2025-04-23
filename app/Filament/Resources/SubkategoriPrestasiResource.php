@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -43,7 +44,7 @@ class SubkategoriPrestasiResource extends Resource
                 ->label('Kategori Prestasi')
                 ->placeholder('Pilih Kategori Prestasi'),
                 TextInput::make('subkategori')
-                    ->required(),
+                ->required(),
             ]);
     }
 
@@ -52,17 +53,31 @@ class SubkategoriPrestasiResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('kategoriPrestasi.kategori')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
                     ->label('Kategori Prestasi')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('subkategori')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->sortable()
                     ->searchable()
-                    ->sortable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('id_kategori_prestasi')
+                    ->relationship('kategoriPrestasi', 'kategori')
+                    ->label('Kategori Prestasi')
+                    ->placeholder('Pilih Kategori Prestasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->columnSpan([
+                        'sm' => 2,
+                        'lg' => 2,
+                        'xl' => 2,
+                        '2xl' => 2,
+                    ])->default(null)
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

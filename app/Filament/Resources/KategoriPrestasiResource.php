@@ -34,6 +34,7 @@ class KategoriPrestasiResource extends Resource
         return $form
             ->schema([
                 TextInput::make('kategori')
+                ->label('Kategori')
                 ->required()
             ]);
     }
@@ -43,6 +44,7 @@ class KategoriPrestasiResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('kategori')
+                ->label('Kategori')
                 ->copyable()
                 ->copyMessage('Copy to Clipboard')
                 ->searchable()

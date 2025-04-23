@@ -12,4 +12,9 @@ class KategoriPrestasi extends Model
     {
         return $this->hasMany(SubkategoriPrestasi::class, 'id_kategori_prestasi', 'id');
     }
+
+    public function prestasi()
+    {
+        return $this->hasMany(Prestasi::class, 'id_kategori_prestasi', 'id');
+    }
 }

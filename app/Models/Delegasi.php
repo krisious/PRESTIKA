@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Delegasi extends Model
 {
     protected $guarded = [];
+
+    public function prestasi()
+    {
+        return $this->hasMany(Prestasi::class, 'id_prestasi', 'id');
+    }
 }

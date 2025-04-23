@@ -16,9 +16,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
-
-
 class JurusanResource extends Resource
 {
     protected static ?string $model = Jurusan::class;
@@ -40,7 +37,8 @@ class JurusanResource extends Resource
         return $form
             ->schema([
                 TextInput::make('jurusan')
-                ->required()
+                    ->required()
+                    ->label('Jurusan'),
             ]);
     }
 
@@ -49,10 +47,11 @@ class JurusanResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('jurusan')
-                ->copyable()
-                ->copyMessage('Copy to Clipboard')
-                ->searchable()
-                ->sortable()
+                    ->label('Jurusan')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->searchable()
+                    ->sortable()
             ])
             ->filters([
                 //
