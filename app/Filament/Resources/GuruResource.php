@@ -6,10 +6,12 @@ use App\Filament\Resources\GuruResource\Pages;
 use App\Filament\Resources\GuruResource\RelationManagers;
 use App\Models\Guru;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Hidden;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -27,7 +29,7 @@ class GuruResource extends Resource
 
     protected static ?string $navigationLabel = 'Guru';
 
-    protected static ?string $slug = 'guru';
+    protected static ?string $slug = 'guru';    
 
     protected static ?string $label = 'Guru';
 
@@ -35,17 +37,20 @@ class GuruResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('user.name')
+                Hidden::make('id_user'),
+                TextInput::make('name')
                     ->required()
                     ->label('Nama Lengkap')
+                    ->dehydrated(fn () => true)
                     ->columnSpan(2),
-                TextInput::make('user.email')
+                TextInput::make('email')
                     ->required()
                     ->label('Email')
                     ->email()
-                    ->unique(ignoreRecord: true)
+                    ->unique(table: User::class, column: 'email')
+                    ->dehydrated(fn () => true)
                     ->columnSpan(2),
-                TextInput::make('user.password')
+                TextInput::make('password')
                     ->required()
                     ->label('Password')
                     ->password()
@@ -89,13 +94,15 @@ class GuruResource extends Resource
                     ->default('aktif'),
                 Select::make('roles')
                     ->label('Roles')
-                    ->relationship('roles', 'name')
+                    ->options(Role::pluck('name', 'id'))
                     ->multiple()
                     ->preload()
                     ->searchable()
                     ->required()
-                    ->default(fn () => [3])
-                    ->disabled(fn () => request()->routeIs('filament.admin.resources.admin.create')),
+                    ->dehydrated(false) 
+                    // ->default(fn () => [3])
+                    ->default(fn () => [Role::where('name', 'Guru')->value('id')])
+                    // ->disabled(fn () => request()->routeIs('filament.admin.resources.guru.create')),
             ]);
     }
 
@@ -145,12 +152,18 @@ class GuruResource extends Resource
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('user.roles.name')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
