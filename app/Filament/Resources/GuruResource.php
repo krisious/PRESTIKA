@@ -100,9 +100,7 @@ class GuruResource extends Resource
                     ->searchable()
                     ->required()
                     ->dehydrated(false) 
-                    // ->default(fn () => [3])
-                    ->default(fn () => [Role::where('name', 'Guru')->value('id')])
-                    // ->disabled(fn () => request()->routeIs('filament.admin.resources.guru.create')),
+                    ->default(fn () => [Role::where('name', 'Guru')->value('id')]),
             ]);
     }
 
@@ -159,11 +157,13 @@ class GuruResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
