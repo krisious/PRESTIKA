@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn; 
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -154,6 +155,36 @@ class SiswaResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+
+                SelectFilter::make('id_jurusan')
+                    ->label('Jurusan')
+                    ->relationship('jurusan', 'jurusan')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                    'aktif' => 'Aktif',
+                    'non aktif' => 'Non Aktif',
+                ])
+                    ->multiple(),
+
+                SelectFilter::make('jenis_kelamin')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'laki-laki' => 'Laki-laki',
+                        'perempuan' => 'Perempuan',
+                ])
+                    ->multiple(),
+
+                SelectFilter::make('tahun_masuk')
+                    ->label('Tahun Masuk')
+                    ->options(
+                    Siswa::query()->select('tahun_masuk')->distinct()->pluck('tahun_masuk', 'tahun_masuk')->toArray()
+                )
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
