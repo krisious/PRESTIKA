@@ -39,25 +39,37 @@ class SiswaResource extends Resource
         return $form
             ->schema([
                 Hidden::make('id_user'),
-                TextInput::make('name')
-                    ->required()
+                TextInput::make('user_name')
                     ->label('Nama Lengkap')
-                    ->dehydrated(fn () => true)
-                    ->columnSpan(2),
-                TextInput::make('email')
+                    ->dehydrated(false) // Jangan simpan ke model siswa
+                    ->afterStateHydrated(function (TextInput $component, $state, $record) {
+                        if ($record?->user) {
+                            $component->state($record->user->name);
+                        }
+                    })
                     ->required()
+                    ->columnSpan(2),
+                TextInput::make('user_email')
                     ->label('Email')
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (TextInput $component, $state, $record) {
+                        if ($record?->user) {
+                            $component->state($record->user->email);
+                        }
+                    })
                     ->email()
-                    ->unique(table: User::class, column: 'email')
-                    ->dehydrated(fn () => true)
+                    ->required()
                     ->columnSpan(2),
                 TextInput::make('password')
-                    ->required()
-                    ->label('Password')
                     ->password()
+                    ->label('Password')
+                    ->required(fn (string $context) => $context === 'create')
                     ->dehydrated(fn ($state) => filled($state))
-                    ->visibleOn('create')
-                    ->columnSpan(2),
+                    ->visibleOn(['create', 'edit'])
+                    ->columnSpan(2)
+                    ->helperText(fn (string $context) => $context === 'edit' 
+                        ? 'Kosongkan jika tidak ingin mengganti password' 
+                        : null),
                 Select::make('id_jurusan')
                     ->required()
                     ->label('Jurusan')
@@ -92,12 +104,16 @@ class SiswaResource extends Resource
                 Select::make('roles')
                     ->label('Roles')
                     ->options(Role::pluck('name', 'id'))
-                    ->multiple()
-                    ->preload()
-                    ->searchable()
                     ->required()
                     ->dehydrated(false) 
-                    ->default(fn () => [Role::where('name', 'Siswa')->value('id')]),
+                    ->default(fn () => [Role::where('name', 'Siswa')->value('id')])
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        if ($record && $record->user) {
+                            $roleIds = $record->user->roles->pluck('id')->toArray();
+                            $component->state($roleIds ?: [Role::where('name', 'Siswa')->value('id')]);
+                    }
+                    })
+                    ->disabled(),
             ]);
     }
 

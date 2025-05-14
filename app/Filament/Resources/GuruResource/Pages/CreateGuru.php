@@ -15,21 +15,24 @@ class CreateGuru extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if (!isset($data['name'], $data['email'], $data['password'])) {
+        $formState = $this->form->getRawState();
+
+        if (!isset($formState['user_name'], $formState['user_email'], $formState['password'])) {
             throw new \Exception('Field name, email, atau password tidak tersedia.');
         }
-    
+
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'name' => $formState['user_name'],
+            'email' => $formState['user_email'],
+            'password' => bcrypt($formState['password']),
         ]);
-    
-        $data['id_user'] = $user->id;
-    
-        unset($data['name'], $data['email'], $data['password'], $data['roles']);
-    
-        return $data;
+
+        $formState['id_user'] = $user->id;
+
+        // Hilangkan field yang bukan milik siswa
+        unset($formState['user_name'], $formState['user_email'], $formState['password'], $formState['roles']);
+
+        return $formState;
     }
     
 
