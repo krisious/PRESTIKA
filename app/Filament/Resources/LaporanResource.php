@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LaporanResource\Pages;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Prestasi;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -19,9 +20,13 @@ class LaporanResource extends Resource
     protected static ?string $model = Prestasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
     protected static ?string $navigationGroup = 'Prestasi';
+    
     protected static ?string $navigationLabel = 'Laporan';
+    
     protected static ?string $slug = 'laporan';
+    
     protected static ?string $label = 'Laporan';
 
     public static function form(Form $form): Form
@@ -77,30 +82,25 @@ class LaporanResource extends Resource
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('peringkatPrestasi.peringkat')
                     ->label('Peringkat Prestasi')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('delegasi.delegasi')
                     ->label('Delegasi')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('tanggal_perolehan')
                     ->label('Tanggal Perolehan')
                     ->dateTime()
                     ->copyable()
                     ->copyMessage('Copy to Clipboard'),
-
                 TextColumn::make('lokasi')
                     ->label('Lokasi'),
-
                 ImageColumn::make('bukti_prestasi')
                     ->disk('public')
                     ->label('Bukti Prestasi')
@@ -114,20 +114,7 @@ class LaporanResource extends Resource
                 // Tambahkan filter jika perlu
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Html2MediaAction::make('Print')
-                    ->label('Print')
-                    ->icon('heroicon-o-printer')
-                    ->html2media()
-                    ->savePdfAction()
-                    ->printAction()
-                    ->html2mediaOptions([
-                        'elementId' => 'laporan',
-                        'fileName' => 'laporan.pdf',
-                        'savePdf' => true,
-                        'print' => true,
-                    ]),
-
+                Tables\Actions\EditAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -140,6 +127,11 @@ class LaporanResource extends Resource
     public static function getRelations(): array
     {
         return [];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return Auth::user()?->hasRole('super_admin') || Auth::user()?->hasRole('admin');
     }
 
     public static function getPages(): array

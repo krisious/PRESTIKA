@@ -23,7 +23,7 @@ class GuruResource extends Resource
 {
     protected static ?string $model = Guru::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationGroup = 'Pengguna';
 

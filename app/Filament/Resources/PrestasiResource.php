@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Siswa;
 use App\Models\User;
+use Spatie\Permission\Traits\HasRoles;
 use App\Models\Prestasi;
 use App\Models\KategoriPrestasi;
 use App\Models\SubkategoriPrestasi;
@@ -40,6 +41,8 @@ class PrestasiResource extends Resource
     
     protected static ?string $label = 'Prestasi';
 
+    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -62,12 +65,14 @@ class PrestasiResource extends Resource
                 TextInput::make('nama_lomba')
                     ->required()
                     ->label('Nama Lomba')
-                    ->columnSpan(2),
+                    ->columnSpan(2)
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('id_kategori_prestasi')
                     ->relationship('kategoriPrestasi', 'kategori')
                     ->required()
                     ->label('Kategori Prestasi')
-                    ->reactive(),
+                    ->reactive()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('id_subkategori_prestasi')
                     ->relationship('subkategoriPrestasi', 'subkategori')
                     ->required()
@@ -84,41 +89,49 @@ class PrestasiResource extends Resource
                             ->pluck('subkategori', 'id');
                     })
                     ->disabled(fn (callable $get) => !$get('id_kategori_prestasi'))
-                    ->reactive(),
+                    ->reactive()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('id_tingkat_prestasi')
                     ->relationship('tingkatPrestasi', 'tingkat')
                     ->required()
                     ->label('Tingkat Prestasi')
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('id_peringkat_prestasi')
                     ->relationship('peringkatPrestasi', 'peringkat')
                     ->required()
                     ->label('Peringkat Prestasi')
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('id_delegasi')
                     ->relationship('delegasi', 'delegasi')
                     ->required()
                     ->label('Delegasi')
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 DatePicker::make('tanggal_perolehan')
                     ->required()
-                    ->label('Tanggal Perolehan'),
+                    ->label('Tanggal Perolehan')
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 TextInput::make('lokasi')
                     ->required()
-                    ->label('Lokasi'),
+                    ->label('Lokasi')
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 TextInput::make('penyelenggara')
                     ->required()
-                    ->label('Penyelenggara'),
+                    ->label('Penyelenggara')
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 fileUpload::make('bukti_prestasi')
                     ->label('Bukti Prestasi')
                     ->disk('public')
                     ->directory('prestasi')
                     ->visibility('public')
                     ->downloadable()
-                    ->required(),
+                    ->required()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -127,7 +140,7 @@ class PrestasiResource extends Resource
                     ])
                     ->default('pending')
                     ->label('Status')
-                    ->disabled(),
+                    ->disabled(fn () => Auth::user()->hasRole('Siswa')),
             ]);
     }
 
@@ -191,20 +204,88 @@ class PrestasiResource extends Resource
                 TextColumn::make('lokasi')
                     ->label('Lokasi'),
                 ImageColumn::make('bukti_prestasi')
-                    ->disk('public')
                     ->label('Bukti Prestasi')
-                    ->size(50)
-                    ->url(fn (Prestasi $record): ?string => $record->bukti_prestasi ? Storage::url($record->bukti_prestasi) : null)
-                    
+                    ->width(100),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'Pending',
+                        'diterima' => 'Diterima',
+                        'ditolak' => 'Ditolak',
+                        default => ucfirst($state),
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'diterima' => 'success',
+                        'ditolak' => 'danger',
+                        default => 'gray',
+                    }),
             ])->defaultSort(
                 'created_at',
                 'desc'
             )
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
-            ])
+                Tables\Filters\SelectFilter::make('id_kategori_prestasi')
+                    ->label('Kategori Prestasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('kategoriPrestasi', 'kategori'),
+                Tables\Filters\SelectFilter::make('id_subkategori_prestasi')
+                    ->label('Subkategori Prestasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('subkategoriPrestasi', 'subkategori'),
+                Tables\Filters\SelectFilter::make('id_tingkat_prestasi')
+                    ->label('Tingkat Prestasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('tingkatPrestasi', 'tingkat'),
+                Tables\Filters\SelectFilter::make('id_peringkat_prestasi')
+                    ->label('Peringkat Prestasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('peringkatPrestasi', 'peringkat'),
+                Tables\Filters\SelectFilter::make('id_delegasi')
+                    ->label('Delegasi')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('delegasi', 'delegasi'),
+                Tables\Filters\Filter::make('tanggal_perolehan')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('Dari Tanggal'),
+                        Forms\Components\DatePicker::make('until')->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                        ->when($data['from'], fn ($q, $date) => $q->whereDate('tanggal_perolehan', '>=', $date))
+                        ->when($data['until'], fn ($q, $date) => $q->whereDate('tanggal_perolehan', '<=', $date));
+                    }),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->options([
+                        'pending' => 'Pending',
+                        'diterima' => 'Diterima',
+                        'ditolak' => 'Ditolak',
+                    ]),
+            ])->persistFiltersInSession()
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                ->visible(function ($record): bool {
+                    if (Auth::check() && Auth::user()->hasRole('Siswa')) {
+                        return $record->status === 'ditolak';
+                    }
+                    return true; // Admin & superadmin bebas
+                }),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
@@ -236,9 +317,15 @@ class PrestasiResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        $query = parent::getEloquentQuery()->withoutGlobalScopes([
+            SoftDeletingScope::class,
+        ]);
+    
+        if (Auth::check() && Auth::user()->hasRole('Siswa')) {
+            $idSiswa = \App\Models\Siswa::where('id_user', Auth::user()->id)->value('id');
+            return $query->where('id_siswa', $idSiswa);
+        }
+    
+        return $query;
     }
 }
