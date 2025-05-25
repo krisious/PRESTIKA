@@ -77,7 +77,7 @@ class SiswaResource extends Resource
                     ->preload()
                     ->searchable()
                     ->required(),
-                    TextInput::make('nis')
+                TextInput::make('nis')
                     ->label('NIS')
                     ->unique(ignoreRecord: true)
                     ->required(),
@@ -134,7 +134,7 @@ class SiswaResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('nis')
-                    ->label('NIP')
+                    ->label('NIS')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
@@ -159,6 +159,15 @@ class SiswaResource extends Resource
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'aktif' => 'Aktif',
+                        'non aktif' => 'Non Aktif',
+                    })
+                    ->colors([
+                        'success' => 'aktif',
+                        'danger' => 'non aktif',
+                    ])
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()

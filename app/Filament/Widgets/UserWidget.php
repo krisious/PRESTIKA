@@ -16,12 +16,16 @@ class UserWidget extends BaseWidget
                 ->icon('heroicon-o-user-group')
                 ->color('success'),
 
-            Stat::make('Total Guru', User::role('Guru')->count())
+            Stat::make('Total Guru Aktif', User::whereHas('guru', function ($query) {
+                    $query->where('status', 'aktif');
+                })->role('Guru')->count())
                 ->description('Pengguna dengan peran Guru')
                 ->icon('heroicon-o-user-group')
                 ->color('warning'),
 
-            Stat::make('Total Siswa', User::role('Siswa')->count())
+            Stat::make('Total Siswa Aktif', User::whereHas('siswa', function ($query) {
+                    $query->where('status', 'aktif');
+                })->role('Siswa')->count())
                 ->description('Pengguna dengan peran Siswa')
                 ->icon('heroicon-o-user-group')
                 ->color('danger'),

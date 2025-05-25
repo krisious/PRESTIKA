@@ -128,6 +128,9 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->whereHas('roles', function ($query) {
+                $query->whereIn('name', ['Admin', 'super_admin']);
+            });
     }
 }

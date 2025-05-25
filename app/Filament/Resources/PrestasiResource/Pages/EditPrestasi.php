@@ -20,11 +20,9 @@ class EditPrestasi extends EditRecord
         ];
     }
 
-    // Override this method to modify form data before filling the form
     protected function mutateFormDataBeforeFill(array $data): array
     {
         if (Auth::user()->hasRole('Siswa') && $data['status'] === 'ditolak') {
-            // Set status to 'pending' before form is populated
             $data['status'] = 'pending';
         }
         return $data;

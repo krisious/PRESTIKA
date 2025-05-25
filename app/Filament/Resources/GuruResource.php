@@ -150,6 +150,15 @@ class GuruResource extends Resource
                     ->sortable(),
                 TextColumn::make('status_pegawai')
                     ->label('Status Pegawai')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'asn' => 'ASN',
+                        'non asn' => 'Non ASN',
+                    })
+                    ->colors([
+                        'success' => 'asn',
+                        'warning' => 'non asn',
+                    ])
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
@@ -162,6 +171,15 @@ class GuruResource extends Resource
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'aktif' => 'Aktif',
+                        'non aktif' => 'Non Aktif',
+                    })
+                    ->colors([
+                        'success' => 'aktif',
+                        'danger' => 'non aktif',
+                    ])
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()

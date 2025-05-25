@@ -20,12 +20,19 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Resources\Resource;
+use App\Filament\Exports\PrestasiExporter;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 
 class PrestasiResource extends Resource
 {
@@ -41,7 +48,14 @@ class PrestasiResource extends Resource
     
     protected static ?string $label = 'Prestasi';
 
-    
+    public static function getNavigationBadge(): ?string
+    {
+        if (Auth::check() && Auth::user()->hasAnyRole(['Admin', 'super_admin'])) {
+            return static::getModel()::where('status', 'pending')->count();
+        }
+
+        return null; // Tidak menampilkan badge untuk role lain
+    }
 
     public static function form(Form $form): Form
     {
@@ -148,6 +162,12 @@ class PrestasiResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('siswa.nis')
+                    ->label('NIS')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('siswa.user.name')
                     ->label('Nama Siswa')
                     ->copyable()
@@ -198,11 +218,22 @@ class PrestasiResource extends Resource
                     ->sortable(),
                 TextColumn::make('tanggal_perolehan')
                     ->label('Tanggal Perolehan')
-                    ->dateTime()
+                    ->dateTime('d-m-Y')
                     ->copyable()
-                    ->copyMessage('Copy to Clipboard'),
+                    ->copyMessage('Copy to Clipboard')
+                    ->sortable(),
+                TextColumn::make('penyelenggara')
+                    ->label('Penyelanggara')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('lokasi')
-                    ->label('Lokasi'),
+                    ->label('Lokasi')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->searchable()
+                    ->sortable(),
                 ImageColumn::make('bukti_prestasi')
                     ->label('Bukti Prestasi')
                     ->width(100),
@@ -290,12 +321,47 @@ class PrestasiResource extends Resource
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(PrestasiExporter::class),
+                Action::make('Laporan')
+                    ->icon('heroicon-o-printer')
+                    ->url(route('prestasi.print'))
+                    ->openUrlInNewTab(),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),  
                 ]),
+                ExportBulkAction::make()
+                    ->exporter(PrestasiExporter::class),
+                BulkAction::make('cetak_pdf')
+                    ->label('Laporan')
+                    ->icon('heroicon-o-printer')
+                    ->action(function (Collection $records) {
+                        $prestasi = $records->load([
+                            'siswa.user',
+                            'siswa.jurusan',
+                            'kategoriPrestasi',
+                            'subkategoriPrestasi',
+                            'tingkatPrestasi',
+                            'peringkatPrestasi',
+                            'delegasi',
+                        ])->sortBy('tanggal_perolehan');
+
+                        $pdf = Pdf::loadView('pdf.prestasi', ['prestasi' => $prestasi])
+                            ->setPaper('a4', 'landscape');
+
+                    return response()->stream(function () use ($pdf) {
+                        echo $pdf->output();
+                    }, 200, [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => 'inline; filename="laporan-prestasi.pdf"',
+                    ]);
+                })
+                ->deselectRecordsAfterCompletion(),
             ]);
     }
 
