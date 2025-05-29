@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Siswa extends Model
+{
+    use SoftDeletes, HasRoles;
+
+    protected $guarded = [];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function jurusan(): BelongsTo
+    {
+        return $this->belongsTo(Jurusan::class, 'id_jurusan');
+    }
+
+    public function prestasi()
+    {
+        return $this->hasMany(Prestasi::class, 'id_siswa', 'id');
+    }
+}
