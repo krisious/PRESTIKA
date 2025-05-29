@@ -38,7 +38,7 @@ class PrestasiResource extends Resource
 {
     protected static ?string $model = Prestasi::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
     protected static ?string $navigationGroup = 'Prestasi';
 
@@ -324,7 +324,7 @@ class PrestasiResource extends Resource
             ->headerActions([
                 ExportAction::make()
                     ->exporter(PrestasiExporter::class),
-                Action::make('Laporan')
+                Action::make('Cetak')
                     ->icon('heroicon-o-printer')
                     ->url(route('prestasi.print'))
                     ->openUrlInNewTab(),
@@ -338,7 +338,7 @@ class PrestasiResource extends Resource
                 ExportBulkAction::make()
                     ->exporter(PrestasiExporter::class),
                 BulkAction::make('cetak_pdf')
-                    ->label('Laporan')
+                    ->label('Cetak')
                     ->icon('heroicon-o-printer')
                     ->action(function (Collection $records) {
                         $prestasi = $records->load([

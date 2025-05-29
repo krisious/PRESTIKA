@@ -45,11 +45,14 @@ class UserResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->columnSpan(2),
                 TextInput::make('password')
-                    ->required()
-                    ->label('Password')
                     ->password()
+                    ->label('Password')
+                    ->required(fn (string $context) => $context === 'create')
                     ->dehydrated(fn ($state) => filled($state))
-                    ->visibleOn('create')
+                    ->visibleOn(['create', 'edit'])
+                    ->helperText(fn (string $context) => $context === 'edit' 
+                        ? 'Kosongkan jika tidak ingin mengganti password' 
+                        : null)
                     ->columnSpan(2),
                 Select::make('roles')
                     ->label('Roles')

@@ -25,8 +25,10 @@ class PrestasiPrintController extends Controller
             'peringkatPrestasi',
             'delegasi',
         ])->where('id_siswa', $idSiswa)
-          ->orderBy('tanggal_perolehan', 'asc')
-          ->get();
+            ->where('status', 'diterima')
+            ->orderBy('tanggal_perolehan', 'asc')
+            ->orderBy('nama_lomba', 'asc')
+            ->get();
     } else {
         // Jika admin/guru atau role lain, ambil semua data
         $prestasi = Prestasi::with([
@@ -37,7 +39,10 @@ class PrestasiPrintController extends Controller
             'tingkatPrestasi',
             'peringkatPrestasi',
             'delegasi',
-        ])->orderBy('tanggal_perolehan', 'asc')->get();
+        ])->where('status', 'diterima')
+        ->orderBy('tanggal_perolehan', 'asc')
+        ->orderBy('nama_lomba', 'asc')
+        ->get();
     }
 
     $pdf = PDF::loadView('pdf.prestasi', compact('prestasi'))->setPaper('a4', 'landscape');

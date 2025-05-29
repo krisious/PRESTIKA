@@ -15,6 +15,7 @@
     <table>
         <thead>
             <tr>
+                <th>No</th>
                 <th>NIS</th>
                 <th>Nama Siswa</th>
                 <th>Jurusan</th>
@@ -32,6 +33,7 @@
         <tbody>
             @foreach ($prestasi as $item)
                 <tr>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->siswa->nis ?? '-' }}</td>
                     <td>{{ $item->siswa->user->name ?? '-' }}</td>
                     <td>{{ $item->siswa->jurusan->jurusan ?? '-' }}</td>
