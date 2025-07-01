@@ -7,10 +7,18 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
+use Filament\Widgets\AccountWidget;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {
     use HasFiltersForm;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            AccountWidget::class,
+        ];
+    }
 
     public function filtersForm(Form $form): Form
     {

@@ -63,6 +63,13 @@ class SiswaResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->label('Password')
+                    ->minLength(8)
+                    ->maxLength(16)
+                    ->rules(['min:8', 'max:16'])
+                    ->validationMessages([
+                        'min' => 'Password minimal harus :min karakter.',
+                        'max' => 'Password maksimal :max karakter.',
+                    ])
                     ->required(fn (string $context) => $context === 'create')
                     ->dehydrated(fn ($state) => filled($state))
                     ->visibleOn(['create', 'edit'])
@@ -79,6 +86,16 @@ class SiswaResource extends Resource
                     ->required(),
                 TextInput::make('nis')
                     ->label('NIS')
+                    ->maxlength(9)
+                    ->rules([
+                        'required',
+                        'size:9', 
+                        'regex:/^[0-9]+$/', 
+                    ])
+                    ->validationMessages([
+                        'size' => 'NIS harus terdiri dari :size digit.', 
+                        'regex' => 'NIS hanya boleh berisi angka.',
+                    ])
                     ->unique(ignoreRecord: true)
                     ->required(),
                 Select::make('jenis_kelamin')
@@ -177,7 +194,7 @@ class SiswaResource extends Resource
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
-            ])
+            ])->defaultSort('nis', 'asc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
 

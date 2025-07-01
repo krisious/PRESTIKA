@@ -47,6 +47,13 @@ class UserResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->label('Password')
+                    ->minLength(8)
+                    ->maxLength(16)
+                    ->rules(['min:8', 'max:16'])
+                    ->validationMessages([
+                        'min' => 'Password minimal harus :min karakter.',
+                        'max' => 'Password maksimal :max karakter.',
+                    ])
                     ->required(fn (string $context) => $context === 'create')
                     ->dehydrated(fn ($state) => filled($state))
                     ->visibleOn(['create', 'edit'])
@@ -84,14 +91,6 @@ class UserResource extends Resource
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->label('Dibuat pada')
-                    ->sortable(),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->label('Diubah pada')
                     ->sortable(),
             ])
             ->filters([

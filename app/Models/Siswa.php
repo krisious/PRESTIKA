@@ -27,4 +27,17 @@ class Siswa extends Model
     {
         return $this->hasMany(Prestasi::class, 'id_siswa', 'id');
     }
+
+    protected static function booted()
+    {
+        static::forceDeleted(function ($siswa) {
+            // Hanya soft delete user saat force delete siswa
+            $siswa->user?->delete();
+        });
+
+        // Jika kamu ingin restore user saat siswa di-restore
+        static::restored(function ($siswa) {
+            $siswa->user?->restore();
+        });
+    }
 }
