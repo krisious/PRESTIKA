@@ -47,24 +47,47 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($prestasi as $item)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $item->siswa->nis ?? '-' }}</td>
-                    <td>{{ $item->siswa->user->name ?? '-' }}</td>
-                    <td>{{ $item->siswa->jurusan->jurusan ?? '-' }}</td>
-                    <td>{{ $item->nama_lomba }}</td>
-                    <td>{{ $item->kategoriPrestasi->kategori ?? '-' }}</td>
-                    <td>{{ $item->subkategoriPrestasi->subkategori ?? '-' }}</td>
-                    <td>{{ $item->tingkatPrestasi->tingkat ?? '-' }}</td>
-                    <td>{{ $item->peringkatPrestasi->peringkat ?? '-' }}</td>
-                    <td>{{ $item->delegasi->delegasi ?? '-' }}</td>
-                    <td>{{ \Carbon\Carbon::parse($item->tanggal_perolehan)->format('d-m-Y') }}</td>
-                    <td>{{ $item->penyelenggara }}</td>
-                    <td>{{ $item->lokasi }}</td>
-                </tr>
-            @endforeach
-        </tbody>
+
+            @php
+    $no = 1;
+@endphp
+    @foreach ($prestasi as $item)
+        @php
+            $anggota = [];
+            if ($item->is_kelompok) {
+                $anggota[] = $item->siswa; // ketua dulu
+                foreach ($item->anggotaTim as $member) {
+                    $anggota[] = $member;
+                }
+            } else {
+                $anggota[] = $item->siswa; // individu
+            }
+            $rowspan = count($anggota);
+        @endphp
+
+        @foreach($anggota as $index => $siswa)
+            <tr>
+                @if($index == 0)
+                    <td rowspan="{{ $rowspan }}">{{ $no++ }}</td>
+                @endif
+                <td>{{ $siswa->nis ?? '-' }}</td>
+                <td>{{ $siswa->user->name ?? '-' }}</td>
+                <td>{{ $siswa->jurusan->jurusan ?? '-' }}</td>
+                @if($index == 0)
+                    <td rowspan="{{ $rowspan }}">{{ $item->nama_lomba }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->kategoriPrestasi->kategori ?? '-' }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->subkategoriPrestasi->subkategori ?? '-' }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->tingkatPrestasi->tingkat ?? '-' }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->peringkatPrestasi->peringkat ?? '-' }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->delegasi->delegasi ?? '-' }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ \Carbon\Carbon::parse($item->tanggal_perolehan)->format('d-m-Y') }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->penyelenggara }}</td>
+                    <td rowspan="{{ $rowspan }}">{{ $item->lokasi }}</td>
+                @endif
+            </tr>
+        @endforeach
+    @endforeach
+</tbody>
     </table>
 
     @if(Auth::check() && Auth::user()->hasRole('Siswa'))

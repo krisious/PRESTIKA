@@ -24,8 +24,16 @@ class PrestasiPrintController extends Controller
             'tingkatPrestasi',
             'peringkatPrestasi',
             'delegasi',
+            'anggotaTim.user',
+            'anggotaTim.jurusan',
         ])->where('id_siswa', $idSiswa)
             ->where('status', 'diterima')
+            ->where(function ($q) use ($idSiswa) {
+                $q->where('id_siswa', $idSiswa)
+                    ->orWhereHas('anggotaTim', function ($q2) use ($idSiswa) {
+                $q2->where('siswa_id', $idSiswa);
+                });
+            })
             ->orderBy('tanggal_perolehan', 'asc')
             ->orderBy('nama_lomba', 'asc')
             ->get();
@@ -39,6 +47,8 @@ class PrestasiPrintController extends Controller
             'tingkatPrestasi',
             'peringkatPrestasi',
             'delegasi',
+            'anggotaTim.user',
+            'anggotaTim.jurusan',
         ])->where('status', 'diterima')
         ->orderBy('tanggal_perolehan', 'asc')
         ->orderBy('nama_lomba', 'asc')

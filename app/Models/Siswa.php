@@ -40,4 +40,14 @@ class Siswa extends Model
             $siswa->user?->restore();
         });
     }
+
+    public function prestasis()
+    {
+        return $this->belongsToMany(Prestasi::class, 'prestasi_siswa', 'siswa_id', 'prestasi_id');
+    }
+
+    public function prestasiAnggota()
+    {
+        return $this->belongsToMany(Prestasi::class, 'anggota_prestasi', 'siswa_id', 'prestasi_id');
+    }
 }

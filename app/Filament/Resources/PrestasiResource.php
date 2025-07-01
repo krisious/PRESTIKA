@@ -61,6 +61,10 @@ class PrestasiResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Toggle::make('is_kelompok')
+                    ->label('Apakah Kelompok?')
+                    ->default(false)
+                    ->reactive(),
                 Hidden::make('id_siswa')
                     ->default(function () {
                         $user = Auth::user();
@@ -81,6 +85,27 @@ class PrestasiResource extends Resource
                             $component->state($record->siswa->user->name);
                         }
                     }),
+                Forms\Components\Select::make('anggota_tim')
+                    ->label('Anggota Tim')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->relationship('anggotaTim', 'id') // ini relasi belongsToMany di model
+                    ->options(function () {
+                         $userId = Auth::id();
+        $siswaId = \App\Models\Siswa::where('id_user', $userId)->value('id');
+
+        return \App\Models\Siswa::with('jurusan', 'user')
+            ->where('id', '!=', $siswaId) // <--- tidak menampilkan dirinya sendiri
+            ->get()
+            ->mapWithKeys(fn($siswa) => [
+                $siswa->id => "{$siswa->nis} - {$siswa->user->name} ({$siswa->jurusan->jurusan})"
+            ]);
+                    })
+                    ->hidden(fn (callable $get) => !$get('is_kelompok'))
+                    ->required(fn (callable $get) => $get('is_kelompok'))
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin'))
+                    ->columnSpan(2),
                 TextInput::make('nama_lomba')
                     ->required()
                     ->label('Nama Lomba')
@@ -187,6 +212,14 @@ class PrestasiResource extends Resource
                     ->wrap()
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('is_kelompok')
+                    ->label('Jenis Partisipan')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state) => $state ? 'Kelompok' : 'Individu')
+                    ->colors([
+                        'primary' => fn (bool $state) => $state === true,   // biru untuk kelompok
+                        'success' => fn (bool $state) => $state === false,  // hijau untuk individu
+                    ]),
                 TextColumn::make('nama_lomba')
                     ->label('Nama Lomba')
                     ->copyable()
@@ -361,6 +394,8 @@ class PrestasiResource extends Resource
                             'tingkatPrestasi',
                             'peringkatPrestasi',
                             'delegasi',
+                            'anggotaTim.user',  
+                            'anggotaTim.jurusan'
                         ])->sortBy('tanggal_perolehan');
 
                         $pdf = Pdf::loadView('pdf.prestasi', ['prestasi' => $prestasi])
@@ -398,12 +433,17 @@ class PrestasiResource extends Resource
         $query = parent::getEloquentQuery()->withoutGlobalScopes([
             SoftDeletingScope::class,
         ]);
-    
+
         if (Auth::check() && Auth::user()->hasRole('Siswa')) {
             $idSiswa = \App\Models\Siswa::where('id_user', Auth::user()->id)->value('id');
-            return $query->where('id_siswa', $idSiswa);
-        }
-    
+
+            return $query->where(function ($q) use ($idSiswa) {
+                        $q->where('id_siswa', $idSiswa)
+                            ->orWhereHas('anggotaTim', function ($q2) use ($idSiswa) {
+                        $q2->where('siswa_id', $idSiswa);
+                    });
+                });
+            }
         return $query;
-    }
+    } 
 }

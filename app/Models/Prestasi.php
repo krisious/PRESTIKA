@@ -42,4 +42,9 @@ class Prestasi extends Model
         return $this->belongsTo(Delegasi::class, 'id_delegasi', 'id');
     }
 
+    public function anggotaTim()
+{
+    return $this->belongsToMany(Siswa::class, 'prestasi_siswa', 'prestasi_id', 'siswa_id');
+}
+
 }
