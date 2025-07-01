@@ -17,4 +17,17 @@ class Guru extends Model
     {
         return $this->belongsTo(User::class, 'id_user', 'id');
     }
+
+    protected static function booted()
+    {
+        static::forceDeleted(function ($guru) {
+            // Hanya soft delete user saat force delete siswa
+            $guru->user?->delete();
+        });
+
+        // Jika kamu ingin restore user saat siswa di-restore
+        static::restored(function ($guru) {
+            $guru->user?->restore();
+        });
+    }
 }

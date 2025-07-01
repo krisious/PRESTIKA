@@ -69,13 +69,18 @@ class PrestasiResource extends Resource
                     ->default(fn () => optional(Siswa::where('id_user', Auth::id())->first())->id),
                 TextInput::make('nama_siswa')
                     ->label('Nama Siswa')
-                    ->default(function () {
-                        $user = Auth::user();
-                        return $user->name;
-                    })
                     ->disabled()
                     ->dehydrated(false)
-                    ->columnSpan(2),
+                    ->columnSpan(2)
+                    ->default(function () {
+                        $user = Auth::user();
+                        return optional($user)->name;
+                    })
+                    ->afterStateHydrated(function (TextInput $component, $state, $record) {
+                        if ($record?->siswa?->user) {
+                            $component->state($record->siswa->user->name);
+                        }
+                    }),
                 TextInput::make('nama_lomba')
                     ->required()
                     ->label('Nama Lomba')
@@ -153,6 +158,7 @@ class PrestasiResource extends Resource
                         'ditolak' => 'Ditolak',
                     ])
                     ->default('pending')
+                    ->required()
                     ->label('Status')
                     ->disabled(fn () => Auth::user()->hasRole('Siswa')),
             ]);
@@ -178,12 +184,14 @@ class PrestasiResource extends Resource
                     ->label('Jurusan')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('nama_lomba')
                     ->label('Nama Lomba')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('kategoriPrestasi.kategori')
@@ -196,6 +204,7 @@ class PrestasiResource extends Resource
                     ->label('Subkategori Prestasi')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tingkatPrestasi.tingkat')
@@ -214,6 +223,7 @@ class PrestasiResource extends Resource
                     ->label('Delegasi')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tanggal_perolehan')
@@ -226,12 +236,14 @@ class PrestasiResource extends Resource
                     ->label('Penyelanggara')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('lokasi')
                     ->label('Lokasi')
                     ->copyable()
                     ->copyMessage('Copy to Clipboard')
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 ImageColumn::make('bukti_prestasi')

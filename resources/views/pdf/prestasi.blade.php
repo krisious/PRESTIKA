@@ -8,6 +8,22 @@
         th, td { border: 1px solid #000; padding: 6px; text-align: left; }
         th { background-color: #f0f0f0; }
         h2 { text-align: center; margin-bottom: 0; }
+        .signature-block {
+            margin-top: 50px; /* Jarak dari tabel */
+            text-align: right;
+            width: 300px; /* Sesuaikan lebar blok tanda tangan */
+            margin-left: auto; /* Memastikan blok berada di kanan */
+            margin-right: 0;
+            padding-right: 20px; /* Sedikit padding dari tepi kanan */
+        }
+        .signature-block p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        .signature-block .name {
+            margin-top: 60px; /* Jarak untuk tanda tangan */
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -50,5 +66,15 @@
             @endforeach
         </tbody>
     </table>
+
+    @if(Auth::check() && Auth::user()->hasRole('Siswa'))
+        <div class="signature-block">
+            <p>Mengetahui,</p>
+            <p>Kepala Sekolah</p>
+            <br><br><br> 
+            <p class="name">[Nama Kepala Sekolah]</p> 
+            <p>NIP: [NIP Kepala Sekolah]</p> 
+        </div>
+    @endif
 </body>
 </html>

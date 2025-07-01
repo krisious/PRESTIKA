@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -61,6 +62,13 @@ class GuruResource extends Resource
                     ->columnSpan(2),
                 TextInput::make('password')
                     ->password()
+                    ->minLength(8)
+                    ->maxLength(16)
+                    ->rules(['min:8', 'max:16'])
+                    ->validationMessages([
+                        'min' => 'Password minimal harus :min karakter.',
+                        'max' => 'Password maksimal :max karakter.',
+                    ])
                     ->label('Password')
                     ->required(fn (string $context) => $context === 'create')
                     ->dehydrated(fn ($state) => filled($state))
@@ -80,6 +88,16 @@ class GuruResource extends Resource
                     ->afterStateUpdated(fn (callable $set, $state) => $set('nip', null)),
                 TextInput::make('nip')
                     ->label('NIP')
+                    ->maxlength(18)
+                    ->rules([
+                        'required',
+                        'size:18',
+                        'regex:/^[0-9]+$/',
+                    ]) 
+                    ->validationMessages([
+                        'size' => 'NIP harus terdiri dari :size digit.', 
+                        'regex' => 'NIP hanya boleh berisi angka.',
+                    ])
                     ->unique(ignoreRecord: true)
                     ->required(fn (callable $get) => $get('status_pegawai') === 'asn')
                     ->disabled(fn (callable $get) => $get('status_pegawai') === 'non asn')
@@ -189,9 +207,40 @@ class GuruResource extends Resource
                     ->copyMessage('Copy to Clipboard')
                     ->searchable()
                     ->sortable(),
-            ])
+            ])->defaultSort('nip', 'asc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+
+                SelectFilter::make('status_pegawai')
+                    ->label('Status Pegawai')
+                    ->options([
+                    'asn' => 'ASN',
+                    'non asn' => 'Non ASN',
+                ])
+                    ->multiple(),
+
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                    'aktif' => 'Aktif',
+                    'non aktif' => 'Non Aktif',
+                ])
+                    ->multiple(),
+
+                SelectFilter::make('jenis_kelamin')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'laki-laki' => 'Laki-laki',
+                        'perempuan' => 'Perempuan',
+                ])
+                    ->multiple(),
+
+                SelectFilter::make('tahun_masuk')
+                    ->label('Tahun Masuk')
+                    ->options(
+                    Guru::query()->select('tahun_masuk')->distinct()->pluck('tahun_masuk', 'tahun_masuk')->toArray()
+                )
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -202,6 +251,8 @@ class GuruResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),  
                 ]),
             ]);
     }
