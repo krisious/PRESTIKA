@@ -12,6 +12,10 @@ use Spatie\Permission\Traits\HasRoles;
 use App\Models\Prestasi;
 use App\Models\KategoriPrestasi;
 use App\Models\SubkategoriPrestasi;
+use App\Models\PeringkatPrestasi;
+use App\Models\TingkatPrestasi;
+use App\Models\Delegasi;
+use App\Models\TahunAjaran;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\FileUpload;
@@ -169,12 +173,15 @@ class PrestasiResource extends Resource
                     ->required()
                     ->label('Penyelenggara')
                     ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
-                fileUpload::make('bukti_prestasi')
-                    ->label('Bukti Prestasi')
-                    ->disk('public')
-                    ->directory('prestasi')
-                    ->visibility('public')
-                    ->downloadable()
+                Select::make('id_tahun_ajaran')
+                    ->label('Diperoleh pada Tahun Ajaran')
+                    ->relationship('tahunAjaran', 'tahun')
+                    ->preload()
+                    ->searchable()
+                    ->options(function () {
+                        return TahunAjaran::where('status', 'aktif')
+                            ->pluck('tahun', 'id');
+                    })
                     ->required()
                     ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
                 Select::make('status')
@@ -187,6 +194,14 @@ class PrestasiResource extends Resource
                     ->required()
                     ->label('Status')
                     ->disabled(fn () => Auth::user()->hasRole('Siswa')),
+                fileUpload::make('bukti_prestasi')
+                    ->label('Bukti Prestasi')
+                    ->disk('public')
+                    ->directory('prestasi')
+                    ->visibility('public')
+                    ->downloadable()
+                    ->required()
+                    ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin')),
             ]);
     }
 
@@ -194,6 +209,12 @@ class PrestasiResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('tahunAjaran.tahun')
+                    ->label('Tahun Ajaran')
+                    ->copyable()
+                    ->copyMessage('Copy to Clipboard')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('siswa.nis')
                     ->label('NIS')
                     ->copyable()
@@ -304,6 +325,12 @@ class PrestasiResource extends Resource
             )
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('tahun_ajaran')
+                    ->label('Tahun Ajaran')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->relationship('tahunAjaran', 'tahun'),
                 Tables\Filters\SelectFilter::make('id_kategori_prestasi')
                     ->label('Kategori Prestasi')
                     ->multiple()
@@ -395,6 +422,7 @@ class PrestasiResource extends Resource
                             'tingkatPrestasi',
                             'peringkatPrestasi',
                             'delegasi',
+                            'tahunAjaran',
                             'anggotaTim.user',  
                             'anggotaTim.jurusan'
                         ])->sortBy('tanggal_perolehan');

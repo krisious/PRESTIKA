@@ -14,12 +14,14 @@ class BarPrestasiAkademik extends ChartWidget
 
     protected static ?string $heading = 'Grafik Bar Prestasi Akademik';
     
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 2;
 
     protected function getData(): array
     {
         $startDate = $this->filters['start_date'] ?? null;
         $endDate = $this->filters['end_date'] ?? null;
+        $jurusanId = $this->filters['jurusan_id'] ?? null;
+        $tahunAjaranId = $this->filters['tahun_ajaran_id'] ?? null;
 
         // Ambil ID untuk kategori Akademik
         $kategoriAkademikId = \App\Models\KategoriPrestasi::where('kategori', 'Akademik')->value('id');
@@ -35,6 +37,16 @@ class BarPrestasiAkademik extends ChartWidget
             $start = Carbon::parse($startDate)->startOfDay();
             $end = Carbon::parse($endDate)->endOfDay();
             $query->whereBetween('prestasis.tanggal_perolehan', [$start, $end]);
+        }
+
+        if (!empty($jurusanId)) {
+            $query->whereHas('siswa', fn ($q) =>
+                $q->where('id_jurusan', $jurusanId)
+            );
+        }
+
+        if (!empty($tahunAjaranId)) {
+            $query->where('prestasis.id_tahun_ajaran', $tahunAjaranId);
         }
 
         $data = $query->get();

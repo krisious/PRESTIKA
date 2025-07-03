@@ -15,7 +15,7 @@ class LinePrestasi extends ChartWidget
 
     protected static ?string $heading = 'Grafik Trend Perkembangan Prestasi';
     
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected int | string | array $columnSpan = 'full';
 
@@ -24,6 +24,8 @@ class LinePrestasi extends ChartWidget
         // Ambil tanggal dari filter, fallback jika tidak ada
         $startDate = $this->filters['start_date'] ?? now()->subMonths(5)->startOfMonth()->toDateString();
         $endDate = $this->filters['end_date'] ?? now()->endOfMonth()->toDateString();
+        $jurusanId      = $this->filters['jurusan_id']      ?? null;
+        $tahunAjaranId  = $this->filters['tahun_ajaran_id'] ?? null;
 
         if (!empty($startDate) && !empty($endDate)) {
             $startDate = Carbon::parse($startDate)->startOfMonth();
@@ -38,7 +40,7 @@ class LinePrestasi extends ChartWidget
         for ($date = $startDate->copy(); $date <= $endDate; $date->addMonth()) {
             $months->push($date->format('M Y'));
         }
-
+        
         // Ambil semua subkategori
         $subkategoris = Prestasi::join('subkategori_prestasis', 'prestasis.id_subkategori_prestasi', '=', 'subkategori_prestasis.id')
             ->select('subkategori_prestasis.id', 'subkategori_prestasis.subkategori')
@@ -66,15 +68,24 @@ class LinePrestasi extends ChartWidget
             foreach ($months as $monthLabel) {
                 $monthDate = Carbon::createFromFormat('M Y', $monthLabel);
 
-                $count = Prestasi::where('id_subkategori_prestasi', $subkategori->id)
+                $query = Prestasi::where('id_subkategori_prestasi', $subkategori->id)
                     ->where('status', 'diterima')
                     ->whereDate('tanggal_perolehan', '>=', $startDate)
                     ->whereDate('tanggal_perolehan', '<=', $endDate)
                     ->whereYear('tanggal_perolehan', $monthDate->year)
-                    ->whereMonth('tanggal_perolehan', $monthDate->month)
-                    ->count();
+                    ->whereMonth('tanggal_perolehan', $monthDate->month);
 
-                $data[] = $count;
+                if ($jurusanId) {
+                    $query->whereHas('siswa', function ($q) use ($jurusanId) {
+                        $q->where('id_jurusan', $jurusanId);
+                    });
+                }
+
+                if ($tahunAjaranId) {
+                    $query->where('id_tahun_ajaran', $tahunAjaranId);
+                }
+
+                $data[] = $query->count();
             }
 
             $color = $colors[$colorIndex % count($colors)];

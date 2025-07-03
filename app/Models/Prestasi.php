@@ -47,4 +47,8 @@ class Prestasi extends Model
         return $this->belongsToMany(Siswa::class, 'prestasi_siswa', 'prestasi_id', 'siswa_id');
     }
 
+    public function tahunAjaran()
+    {
+        return $this->belongsTo(TahunAjaran::class, 'id_tahun_ajaran');
+    }
 }

@@ -17,7 +17,7 @@ class LatestPrestasi extends BaseWidget
 {
     protected static ?string $heading = 'Prestasi Terbaru';
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 6;
     
     protected int | string | array $columnSpan = 'full'; 
 

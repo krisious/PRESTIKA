@@ -14,12 +14,14 @@ class BarPrestasiNonAkademik extends ChartWidget
 
     protected static ?string $heading = 'Grafik Bar Prestasi Nonakademik';
     
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
     protected function getData(): array
     {
         $startDate = $this->filters['start_date'] ?? null;
         $endDate = $this->filters['end_date'] ?? null;
+        $jurusanId = $this->filters['jurusan_id'] ?? null;
+        $tahunAjaranId = $this->filters['tahun_ajaran_id'] ?? null;
 
         // Ambil ID untuk kategori Nonakademik
         $kategoriNonakademikId = \App\Models\KategoriPrestasi::where('kategori', 'Nonakademik')->value('id');
@@ -35,6 +37,16 @@ class BarPrestasiNonAkademik extends ChartWidget
             $start = Carbon::parse($startDate)->startOfDay();
             $end = Carbon::parse($endDate)->endOfDay();
             $query->whereBetween('prestasis.tanggal_perolehan', [$start, $end]);
+        }
+
+        if (!empty($jurusanId)) {
+            $query->whereHas('siswa', fn ($q) =>
+                $q->where('id_jurusan', $jurusanId)
+            );
+        }
+
+        if (!empty($tahunAjaranId)) {
+            $query->where('prestasis.id_tahun_ajaran', $tahunAjaranId);
         }
 
         $data = $query->get();
