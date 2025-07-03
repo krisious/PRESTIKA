@@ -93,8 +93,8 @@ class SiswaResource extends Resource
                         'regex:/^[0-9]+$/', 
                     ])
                     ->validationMessages([
-                        'size' => 'NIS harus terdiri dari :size digit.', 
                         'regex' => 'NIS hanya boleh berisi angka.',
+                        'size' => 'NIS harus terdiri dari :size digit.', 
                     ])
                     ->unique(ignoreRecord: true)
                     ->required(),

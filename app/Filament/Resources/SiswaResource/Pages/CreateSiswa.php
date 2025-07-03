@@ -51,5 +51,11 @@ class CreateSiswa extends CreateRecord
                 $user->assignRole($defaultRole);
             }
         }
+
+        $anggotaTim = $this->form->getState()['anggota_tim'] ?? [];
+
+        if ($this->record->is_kelompok && count($anggotaTim)) {
+            $this->record->anggotaTim()->sync($anggotaTim);
+        }
     }
 }

@@ -85,27 +85,28 @@ class PrestasiResource extends Resource
                             $component->state($record->siswa->user->name);
                         }
                     }),
-                Forms\Components\Select::make('anggota_tim')
+                Select::make('anggota_tim')
                     ->label('Anggota Tim')
                     ->multiple()
                     ->searchable()
                     ->preload()
-                    ->relationship('anggotaTim', 'id') // ini relasi belongsToMany di model
+                    ->relationship('anggotaTim', 'id') 
                     ->options(function () {
-                         $userId = Auth::id();
-        $siswaId = \App\Models\Siswa::where('id_user', $userId)->value('id');
+                        $userId = Auth::id();
+                        $siswaId = \App\Models\Siswa::where('id_user', $userId)->value('id');
 
-        return \App\Models\Siswa::with('jurusan', 'user')
-            ->where('id', '!=', $siswaId) // <--- tidak menampilkan dirinya sendiri
-            ->get()
-            ->mapWithKeys(fn($siswa) => [
-                $siswa->id => "{$siswa->nis} - {$siswa->user->name} ({$siswa->jurusan->jurusan})"
-            ]);
+                        return \App\Models\Siswa::with('jurusan', 'user')
+                            ->where('id', '!=', $siswaId) // <--- tidak menampilkan dirinya sendiri
+                            ->get()
+                            ->mapWithKeys(fn($siswa) => [
+                            $siswa->id => "{$siswa->nis} - {$siswa->user->name} ({$siswa->jurusan->jurusan})"
+                        ]);
                     })
                     ->hidden(fn (callable $get) => !$get('is_kelompok'))
                     ->required(fn (callable $get) => $get('is_kelompok'))
                     ->disabled(fn () => Auth::user()->hasRole('Admin') || Auth::user()->hasRole('super_admin'))
-                    ->columnSpan(2),
+                    ->columnSpan(2)
+                    ->dehydrated(false),
                 TextInput::make('nama_lomba')
                     ->required()
                     ->label('Nama Lomba')

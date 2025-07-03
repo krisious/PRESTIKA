@@ -95,8 +95,8 @@ class GuruResource extends Resource
                         'regex:/^[0-9]+$/',
                     ]) 
                     ->validationMessages([
-                        'size' => 'NIP harus terdiri dari :size digit.', 
                         'regex' => 'NIP hanya boleh berisi angka.',
+                        'size' => 'NIP harus terdiri dari :size digit.', 
                     ])
                     ->unique(ignoreRecord: true)
                     ->required(fn (callable $get) => $get('status_pegawai') === 'asn')
