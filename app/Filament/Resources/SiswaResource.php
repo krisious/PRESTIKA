@@ -115,7 +115,7 @@ class SiswaResource extends Resource
                     ->label('Status')
                     ->options([
                         'aktif' => 'Aktif',
-                        'non aktif' => 'Non Aktif',
+                        'nonaktif' => 'Non Aktif',
                     ])
                     ->default('aktif'),
                 Select::make('roles')
@@ -179,7 +179,7 @@ class SiswaResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'aktif' => 'Aktif',
-                        'non aktif' => 'Non Aktif',
+                        'nonaktif' => 'Non Aktif',
                     })
                     ->colors([
                         'success' => 'aktif',

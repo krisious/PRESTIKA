@@ -5,7 +5,9 @@ namespace App\Filament\Resources\GuruResource\Pages;
 use App\Filament\Resources\GuruResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
+use App\Models\Guru;
 
 class EditGuru extends EditRecord
 {
@@ -28,6 +30,12 @@ class EditGuru extends EditRecord
             throw new \Exception('Field name atau email tidak tersedia.');
         }
 
+        $this->validateSingleActivePrincipal(
+            (array) ($formState['roles'] ?? []),
+            $formState['status'] ?? 'aktif',
+            $this->record->id,
+        );
+
         // Update data User terlebih dahulu
         $user = $this->record->user;
         
@@ -37,17 +45,16 @@ class EditGuru extends EditRecord
                 'email' => $formState['user_email'],
             ]);
 
-        if (!empty($formState['password'])) {
-            $user->update([
-                'password' => bcrypt($formState['password']),
-            ]);
+            if (!empty($formState['password'])) {
+                $user->update([
+                    'password' => bcrypt($formState['password']),
+                ]);
+            }
         }
-    }
 
-        // Masukkan id_user ke dalam data Siswa
         $data['id_user'] = $user->id;
 
-        // Hilangkan field yang tidak ada di tabel `siswas`
+        // Bersihkan field non-model
         unset($data['user_name'], $data['user_email'], $data['roles'], $data['password']);
 
         return $data;
@@ -60,17 +67,42 @@ class EditGuru extends EditRecord
         $formState = $this->form->getRawState();
 
         if ($user) {
-            $roles = $formState['roles'] ?? [];
+            // $roles = $formState['roles'] ?? [];
+            $roles = (array) ($formState['roles'] ?? []);
 
             if (!empty($roles)) {
-                $user->syncRoles($roles);
+                // $user->syncRoles($roles);
+                $roleNames = Role::whereIn('id', $roles)->pluck('name')->toArray();
+                $user->syncRoles($roleNames);
             } else {
-                // Jika roles tidak dipilih, pastikan tetap memiliki role "Siswa"
-                $defaultRole = Role::where('name', 'Siswa')->first();
+                // Fallback jika role kosong
+                $defaultRole = Role::where('name', 'Guru')->first();
                 if ($defaultRole) {
-                $user->syncRoles([$defaultRole->id]);
+                    $user->syncRoles([$defaultRole->id]);
                 }
             }
+        }
+    }
+
+    protected function validateSingleActivePrincipal(string|array $roleIds, string $status, ?int $ignoreGuruId = null): void
+    {
+        $roleIds = (array) $roleIds;
+        $kepalaSekolahRoleId = Role::where('name', 'Kepala Sekolah')->value('id');
+
+        if (!in_array($kepalaSekolahRoleId, $roleIds) || $status !== 'aktif') {
+            return; // tidak perlu validasi jika bukan kepala sekolah aktif
+        }
+
+        $alreadyExists = Guru::where('status', 'aktif')
+            ->whereHas('user.roles', fn ($q) => $q->where('name', 'Kepala Sekolah'))
+            ->when($ignoreGuruId, fn ($q) => $q->where('id', '!=', $ignoreGuruId))
+            ->exists();
+
+        if ($alreadyExists) {
+            throw ValidationException::withMessages([
+                'roles' => 'Sudah ada akun Kepala Sekolah yang berstatus aktif. 
+                            Nonaktifkan akun tersebut terlebih dahulu sebelum menetapkan akun ini.',
+            ]);
         }
     }
 }

@@ -119,22 +119,39 @@ class GuruResource extends Resource
                     ->label('Status')
                     ->options([
                         'aktif' => 'Aktif',
-                        'non aktif' => 'Non Aktif',
+                        'nonaktif' => 'Non Aktif',
                     ])
                     ->default('aktif'),
                 Select::make('roles')
                     ->label('Roles')
-                    ->options(Role::pluck('name', 'id'))
                     ->required()
                     ->dehydrated(false) 
+                    ->options(function ($livewire){
+                        $options = Role::whereIn('name', ['Guru', 'Kepala Sekolah'])
+                            ->pluck('name', 'id')
+                            ->toArray();
+
+                        $principalExists = Guru::where('status', 'aktif')
+                            ->whereHas('user.roles', fn ($q) => $q->where('name', 'Kepala Sekolah'))
+                            ->when($livewire->record, fn ($q) =>            
+                                $q->where('id', '!=', $livewire->record->id)
+                            )
+                            ->exists();
+
+                        if ($principalExists) {
+                            $principalRoleId = Role::where('name', 'Kepala Sekolah')->value('id');
+                            unset($options[$principalRoleId]);               
+                        }
+
+                        return $options;
+                    })
                     ->default(fn () => [Role::where('name', 'Guru')->value('id')])
                     ->afterStateHydrated(function ($component, $state, $record) {
                         if ($record && $record->user) {
-                            $roleIds = $record->user->roles->pluck('id')->toArray();
-                            $component->state($roleIds ?: [Role::where('name', 'Guru')->value('id')]);
-                    }
+                        $component->state($record->user->roles->pluck('id')->toArray());
+                        }
                     })
-                    ->disabled(),
+                    ->disabled(false),
             ]);
     }
 
@@ -192,7 +209,7 @@ class GuruResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'aktif' => 'Aktif',
-                        'non aktif' => 'Non Aktif',
+                        'nonaktif' => 'Non Aktif',
                     })
                     ->colors([
                         'success' => 'aktif',
