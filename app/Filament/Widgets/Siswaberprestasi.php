@@ -4,11 +4,13 @@ namespace App\Filament\Widgets;
 
 use App\Models\Prestasi;
 use App\Models\Siswa;
+use App\Models\User;
 use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Widgets\TableWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Siswaberprestasi extends TableWidget
 {
@@ -17,6 +19,12 @@ class Siswaberprestasi extends TableWidget
     protected static ?string $heading = 'Top 5 Siswa Berprestasi';
     protected static ?int    $sort    = 1;
     protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        // Sembunyikan jika user login & punya role 'Siswa'
+        return ! (Auth::check() && Auth::user()->hasRole('Siswa'));
+    }
 
     protected function getTableQuery(): \Illuminate\Database\Eloquent\Builder
     {
@@ -75,16 +83,13 @@ class Siswaberprestasi extends TableWidget
     {
         return [
             Tables\Columns\TextColumn::make('user.name')
-                ->label('Nama Siswa')
-                ->searchable(),
+                ->label('Nama Siswa'),
 
             Tables\Columns\TextColumn::make('jurusan.jurusan')
-                ->label('Jurusan')
-                ->searchable(),
+                ->label('Jurusan'),
 
             Tables\Columns\TextColumn::make('total_prestasi')
-                ->label('Total Prestasi')
-                ->sortable(),
+                ->label('Total Prestasi'),
         ];
     }
 

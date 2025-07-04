@@ -15,15 +15,15 @@ class tahunajaranPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_tahunajaran::prestasi');
+        return $user->can('view_any_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, tahunajaran $tahunajaran): bool
+    public function view(User $user, TahunAjaran $tahunAjaran): bool
     {
-        return $user->can('view_tahunajaran::prestasi');
+        return $user->can('view_tahun::ajaran');
     }
 
     /**
@@ -31,23 +31,23 @@ class tahunajaranPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_tahunajaran::prestasi');
+        return $user->can('create_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, tahunajaran $tahunajaran): bool
+    public function update(User $user, TahunAjaran  $tahunAjaran): bool
     {
-        return $user->can('update_tahunajaran::prestasi');
+        return $user->can('update_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, tahunajaran $tahunajaran): bool
+    public function delete(User $user, TahunAjaran  $tahunAjaran): bool
     {
-        return $user->can('delete_tahunajaran::prestasi');
+        return $user->can('delete_tahun::ajaran');
     }
 
     /**
@@ -55,15 +55,15 @@ class tahunajaranPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_tahunajaran::prestasi');
+        return $user->can('delete_any_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, tahunajaran $tahunajaran): bool
+    public function forceDelete(User $user, TahunAjaran  $tahunAjaran): bool
     {
-        return $user->can('force_delete_tahunajaran::prestasi');
+        return $user->can('force_delete_tahun::ajaran');
     }
 
     /**
@@ -71,15 +71,15 @@ class tahunajaranPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_tahunajaran::prestasi');
+        return $user->can('force_delete_any_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, tahunajaran $tahunajaran): bool
+    public function restore(User $user, TahunAjaran $tahunAjaran): bool
     {
-        return $user->can('restore_tahunajaran::prestasi');
+        return $user->can('restore_tahun::ajaran');
     }
 
     /**
@@ -87,15 +87,15 @@ class tahunajaranPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_tahunajaran::prestasi');
+        return $user->can('restore_any_tahun::ajaran');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, tahunajaran $tahunajaran): bool
+    public function replicate(User $user, TahunAjaran $tahunAjaran): bool
     {
-        return $user->can('replicate_tahunajaran::prestasi');
+        return $user->can('replicate_tahun::ajaran');
     }
 
     /**
@@ -103,6 +103,6 @@ class tahunajaranPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_tahunajaran::prestasi');
+        return $user->can('reorder_tahun::ajaran');
     }
 }

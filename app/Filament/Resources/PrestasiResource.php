@@ -396,11 +396,23 @@ class PrestasiResource extends Resource
             ])
             ->headerActions([
                 ExportAction::make()
-                    ->exporter(PrestasiExporter::class),
+                    ->exporter(PrestasiExporter::class)
+                    ->disabled(function () {
+                        return !(Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']));
+                    })
+                    ->visible(function () {
+                        return Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']);
+                    }),
                 Action::make('Cetak')
                     ->icon('heroicon-o-printer')
                     ->url(route('prestasi.print'))
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->disabled(function () {
+                        return !(Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']));
+                    })
+                    ->visible(function () {
+                        return Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']);
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -409,10 +421,22 @@ class PrestasiResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),  
                 ]),
                 ExportBulkAction::make()
-                    ->exporter(PrestasiExporter::class),
+                    ->exporter(PrestasiExporter::class)
+                    ->disabled(function () {
+                        return !(Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']));
+                    })
+                    ->visible(function () {
+                        return Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']);
+                    }),
                 BulkAction::make('cetak_pdf')
                     ->label('Cetak')
                     ->icon('heroicon-o-printer')
+                    ->disabled(function () {
+                        return !(Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']));
+                    })
+                    ->visible(function () {
+                        return Auth::check() && Auth::user()->hasAnyRole(['super_admin', 'Admin', 'Siswa']);
+                    })
                     ->action(function (Collection $records) {
                         $prestasi = $records->load([
                             'siswa.user',
